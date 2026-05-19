@@ -119,7 +119,7 @@ async (page) => {
 - 用 Bash 读取并解析：
   ```bash
   # 读取前端配置
-  SKILL_DIR=$(find /Users/smzdm/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
+  SKILL_DIR=$(find ~/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
   if [ -f "$SKILL_DIR/config.json" ]; then
     cat "$SKILL_DIR/config.json"
   fi
@@ -154,7 +154,7 @@ Skill 运行期间需要持续写入 `status.json`，供前端面板实时显示
 
 ```bash
 # 写入状态到 status.json
-SKILL_DIR=$(find /Users/smzdm/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
+SKILL_DIR=$(find ~/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
 cat > "$SKILL_DIR/status.json" << 'JSONEOF'
 {
   "status": "running",
@@ -219,7 +219,7 @@ write_status("completed", "", "全部采集完成", total+"/"+total, all_brands)
 write_status() {
   local status=$1 brand=$2 step=$3 progress=$4
   local completed_json=$5
-  SKILL_DIR=$(find /Users/smzdm/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
+  SKILL_DIR=$(find ~/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
   cat > "$SKILL_DIR/status.json" << JSONEOF
 {
   "status": "$status",
@@ -402,7 +402,7 @@ async (page) => {
 
 ```bash
 # 读取配置中的保存路径
-SKILL_DIR=$(find /Users/smzdm/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
+SKILL_DIR=$(find ~/.claude/skills -maxdepth 1 -name "douyin-livestream-monitor" -type d 2>/dev/null | head -1)
 SAVE_DIR="~/Desktop/抖音直播间截图"
 if [ -f "$SKILL_DIR/config.json" ]; then
   CONFIG_SAVE_PATH=$(python3 -c "import json; print(json.load(open('$SKILL_DIR/config.json')).get('savePath', '$SAVE_DIR'))" 2>/dev/null)
