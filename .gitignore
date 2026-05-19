@@ -1,0 +1,16 @@
+# Generated files
+config.json
+status.json
+
+# Screenshots
+*.png
+*.jpg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# OS
+.DS_Store

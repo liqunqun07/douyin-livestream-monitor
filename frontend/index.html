@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抖音直播间监控 - 配置面板</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  h1 small {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  label .hint {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: var(--bg);
+  }
+  textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #4338ca; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover:not(:disabled) { background: #16a34a; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #dc2626; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover:not(:disabled) { background: var(--bg); }
+  .btn-lg { padding: 14px 32px; font-size: 16px; }
+
+  /* Status */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.idle { background: var(--text-secondary); }
+  .status-dot.running { background: var(--warning); animation: pulse 1.5s infinite; }
+  .status-dot.completed { background: var(--success); }
+  .status-dot.error { background: var(--danger); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+  }
+  .status-text { font-size: 14px; font-weight: 500; }
+  .status-text.idle { color: var(--text-secondary); }
+  .status-text.running { color: var(--warning); }
+  .status-text.completed { color: var(--success); }
+  .status-text.error { color: var(--danger); }
+
+  .progress-section { margin-bottom: 16px; }
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    width: 100%; height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    background: var(--primary);
+  }
+  .progress-fill.completed { background: var(--success); }
+  .progress-fill.error { background: var(--danger); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .info-item {
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+  }
+  .info-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-value { font-size: 14px; font-weight: 500; margin-top: 2px; word-break: break-all; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #eef2ff;
+    color: var(--primary);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag.done { background: #f0fdf4; color: var(--success); }
+  .tag.error { background: #fef2f2; color: var(--danger); }
+
+  .log-container {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .log-container:empty::after {
+    content: "暂无日志";
+    color: #64748b;
+  }
+  .log-entry { white-space: pre-wrap; word-break: break-all; }
+  .log-entry .time { color: #64748b; }
+  .log-entry .brand { color: #818cf8; }
+  .log-entry .step { color: #facc15; }
+  .log-entry .done { color: #4ade80; }
+  .log-entry .err { color: #f87171; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .card { padding: 16px; }
+    .action-bar { flex-direction: column; }
+    .action-bar .btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>
+    🎯 抖音直播间监控
+    <small>配置面板 v2.0</small>
+  </h1>
+
+  <!-- Config Card -->
+  <div class="card" id="configCard">
+    <div class="card-title">
+      ⚙️ 采集配置
+      <span id="configStatus" style="font-size:12px;color:var(--text-secondary);font-weight:400;"></span>
+    </div>
+    <div class="form-group">
+      <label for="brands">品牌列表 <span class="hint">（多个品牌用逗号隔开）</span></label>
+      <textarea id="brands" placeholder="例如: 兰蔻, 雅诗兰黛, SK-II, 赫莲娜, 海蓝之谜"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="savePath">截图保存路径 <span class="hint">（所有图片存放的文件夹）</span></label>
+      <input type="text" id="savePath" placeholder="~/Desktop/抖音直播间截图">
+    </div>
+    <div class="form-group" style="display:flex;gap:8px;">
+      <button class="btn btn-primary" id="saveBtn" onclick="saveConfig()">💾 保存配置</button>
+    </div>
+  </div>
+
+  <!-- Monitor Card -->
+  <div class="card" id="monitorCard">
+    <div class="card-title">
+      📊 运行状态
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-dot idle" id="statusDot"></span>
+      <span class="status-text idle" id="statusText">等待启动</span>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-section" id="progressSection">
+      <div class="progress-row">
+        <span id="progressLabel">进度</span>
+        <span id="progressCount">0 / 0</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">当前品牌</div>
+        <div class="info-value" id="currentBrand">-</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">当前步骤</div>
+        <div class="info-value" id="currentStep">-</div>
+      </div>
+      <div class="info-item" style="grid-column:1/-1;">
+        <div class="info-label">已完成品牌</div>
+        <div class="info-value">
+          <div class="tag-list" id="completedBrands"><span style="color:var(--text-secondary);font-weight:400;font-size:12px;">暂无</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claude Code 提示 -->
+    <div id="claudeHint" style="display:none; background:#eef2ff; border:1px solid #c7d2fe; border-radius:8px; padding:12px 16px; margin-bottom:12px;">
+      <div style="font-size:13px; font-weight:500; color:#4338ca; margin-bottom:4px;">💬 下一步</div>
+      <div style="font-size:13px; color:#1e293b;">
+        切换到 Claude Code 终端，输入：
+        <code style="background:#fff; padding:2px 8px; border-radius:4px; font-weight:600;">看直播间</code>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="btn btn-success btn-lg" id="startBtn" onclick="startCollection()">
+        ▶️ 开始采集
+      </button>
+      <button class="btn btn-outline" id="refreshBtn" onclick="loadStatus()" style="margin-left:auto;">
+        🔄 刷新
+      </button>
+    </div>
+
+    <!-- Log -->
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--text-secondary);">运行日志</div>
+      <div class="log-container" id="logContainer"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;">
+    配置保存在 config.json · 状态同步 status.json ·
+    运行 bash start.sh 启动面板
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== Config ======
+async function loadConfig() {
+  try {
+    const resp = await fetch("/api/config");
+    const data = await resp.json();
+    document.getElementById("brands").value = Array.isArray(data.brands) ? data.brands.join(", ") : (data.brands || "");
+    document.getElementById("savePath").value = data.savePath || "~/Desktop/抖音直播间截图";
+    document.getElementById("configStatus").textContent = "✅ 已加载";
+  } catch {
+    document.getElementById("configStatus").textContent = "⚠️ 加载失败";
+  }
+}
+
+async function saveConfig() {
+  const brands = document.getElementById("brands").value;
+  const savePath = document.getElementById("savePath").value;
+  try {
+    const resp = await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brands, savePath }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showToast(`配置已保存，共 ${data.brands.length} 个品牌`, "success");
+      document.getElementById("configStatus").textContent = `✅ ${data.brands.length} 个品牌`;
+    }
+  } catch {
+    showToast("保存失败，请检查服务是否运行", "error");
+  }
+}
+
+// ====== Start / Stop ======
+async function startCollection() {
+  // 先保存配置
+  await saveConfig();
+
+  const btn = document.getElementById("startBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ 就绪中...";
+
+  try {
+    const resp = await fetch("/api/start", { method: "POST" });
+    const data = await resp.json();
+    if (data.success) {
+      showToast("✅ 已就绪！请在 Claude Code 中输入「看直播间」", "success");
+      document.getElementById("claudeHint").style.display = "block";
+      loadStatus();
+    } else {
+      showToast("⚠️ " + data.message, "error");
+    }
+  } catch {
+    showToast("操作失败，请检查服务是否运行", "error");
+  }
+  btn.disabled = false;
+  btn.innerHTML = "▶️ 开始采集";
+}
+
+async function stopCollection() {
+  // 在 Claude Code 模式下，停止只是重置状态
+  try {
+    const resp = await fetch("/api/reset", { method: "POST" });
+    if (resp.ok) {
+      showToast("状态已重置", "success");
+      document.getElementById("claudeHint").style.display = "none";
+      loadStatus();
+    }
+  } catch {
+    showToast("重置失败", "error");
+  }
+}
+
+// ====== Status ======
+let statusLogs = [];
+let lastStatus = null;
+
+function addLog(entry) {
+  const container = document.getElementById("logContainer");
+  const div = document.createElement("div");
+  div.className = "log-entry";
+  div.innerHTML = entry;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function buildLogEntry(status) {
+  const time = status.updatedAt ? status.updatedAt.split(" ")[1] : "";
+  const timeTag = `<span class="time">[${time}]</span>`;
+
+  if (status.status === "completed") {
+    return `${timeTag} <span class="done">✅ 全部采集完成！</span>`;
+  }
+  if (status.status === "error") {
+    const err = status.errors?.[0] || "发生错误";
+    return `${timeTag} <span class="err">❌ ${err}</span>`;
+  }
+  if (status.status === "idle" && status.currentStep === "已手动停止") {
+    return `${timeTag} <span class="err">⏹️ 已手动停止</span>`;
+  }
+  if (status.currentBrand && status.currentStep) {
+    const prefix = statusLogs.length === 0 ? "🚀 " : "▶️ ";
+    return `${timeTag} <span class="brand">${prefix}${status.currentBrand}</span> — <span class="step">${status.currentStep}</span>`;
+  }
+  if (status.status === "running" && !status.currentBrand) {
+    return `${timeTag} ⏳ ${status.currentStep || "等待中..."}`;
+  }
+  return "";
+}
+
+async function loadStatus() {
+  try {
+    const resp = await fetch("/api/status");
+    const status = await resp.json();
+
+    const dot = document.getElementById("statusDot");
+    const text = document.getElementById("statusText");
+
+    const st = status.status;
+    const effectiveStatus = (st === "waiting") ? "running" :
+                            (st === "completed" ? "completed" :
+                             st === "error" ? "error" :
+                             st === "running" ? "running" : "idle");
+
+    dot.className = "status-dot " + effectiveStatus;
+
+    const statusMap = {
+      idle: "⏸️ 等待启动",
+      waiting: "⏳ 等待 Claude Code 执行...",
+      running: "▶️ 运行中",
+      completed: "✅ 全部完成",
+      error: "❌ 出错",
+    };
+    text.textContent = statusMap[st] || effectiveStatus;
+    text.className = "status-text " + effectiveStatus;
+
+    // 进度
+    if (status.progress) {
+      document.getElementById("progressCount").textContent = status.progress;
+      const parts = status.progress.split("/");
+      if (parts.length === 2) {
+        const done = parseInt(parts[0]) || 0;
+        const totalCount = parseInt(parts[1]) || 1;
+        const pct = Math.min(100, Math.round((done / totalCount) * 100));
+        const fill = document.getElementById("progressFill");
+        fill.style.width = pct + "%";
+        fill.className = "progress-fill" + (effectiveStatus === "completed" ? " completed" : effectiveStatus === "error" ? " error" : "");
+        document.getElementById("progressLabel").textContent = `进度 ${pct}%`;
+      }
+    } else {
+      document.getElementById("progressCount").textContent = "0 / 0";
+      document.getElementById("progressFill").style.width = "0%";
+      document.getElementById("progressLabel").textContent = "进度";
+    }
+
+    document.getElementById("currentBrand").textContent = status.currentBrand || "-";
+    document.getElementById("currentStep").textContent = status.currentStep || "-";
+
+    // 已完成标签
+    const tagContainer = document.getElementById("completedBrands");
+    if (status.completedBrands?.length) {
+      tagContainer.innerHTML = status.completedBrands
+        .map(b => {
+          const isErr = b.includes("出错") || b.includes("失败");
+          return `<span class="tag ${isErr ? 'error' : 'done'}">${isErr ? '❌' : '✅'} ${b}</span>`;
+        })
+        .join("");
+    } else {
+      tagContainer.innerHTML = '<span style="color:var(--text-secondary);font-weight:400;font-size:12px;">暂无</span>';
+    }
+
+    // 按钮状态
+    const startBtn = document.getElementById("startBtn");
+    if (effectiveStatus === "waiting") {
+      startBtn.innerHTML = "⏳ 已就绪，等待中";
+    } else if (effectiveStatus === "running") {
+      startBtn.innerHTML = "⏳ 正在采集...";
+    } else {
+      startBtn.innerHTML = "▶️ 开始采集";
+    }
+    startBtn.disabled = (effectiveStatus === "running" || effectiveStatus === "waiting");
+
+    // 日志
+    const logEntry = buildLogEntry(status);
+    if (logEntry && JSON.stringify(status) !== JSON.stringify(lastStatus)) {
+      addLog(logEntry);
+    }
+    lastStatus = JSON.parse(JSON.stringify(status));
+  } catch {
+    // server unreachable
+  }
+}
+
+// ====== Polling ======
+let pollTimer = null;
+function startPolling() {
+  loadStatus();
+  pollTimer = setInterval(loadStatus, 1500);
+}
+function stopPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+}
+
+// ====== Toast ======
+function showToast(msg, type) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.className = "toast " + type + " show";
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+// ====== Init ======
+document.addEventListener("DOMContentLoaded", () => {
+  loadConfig();
+  startPolling();
+});
+</script>
+</body>
+</html>
